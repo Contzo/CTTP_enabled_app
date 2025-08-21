@@ -2,15 +2,16 @@ import Main from "@/components/Main";
 import HomeContent from "@/components/HomeContent";
 import { redirect } from "next/navigation";
 
-export default function Home({
+export default async function Home({
   searchParams,
 }: {
   searchParams: Record<string, string>;
 }) {
-  if (!searchParams.source || !searchParams.destination) {
+  const params = await searchParams;
+  if (!params.source || !params.destination) {
     redirect(
-      `/?source=${searchParams.source ?? "Sepolia"}&destination=${
-        searchParams.destination ?? "Arbitrum+Sepolia"
+      `/?source=${params.source ?? "Sepolia"}&destination=${
+        params.destination ?? "Arbitrum+Sepolia"
       }`
     );
   }
