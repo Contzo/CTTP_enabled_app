@@ -3,25 +3,32 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { useSwitchChain } from "wagmi";
 import { USDC_ADDRESSES } from "@/constants/tokens";
+import useAccountUSDCBalance from "@/hooks/useAccountUSDCBalance";
+import { formatUnits } from "viem";
 
 type Direction = "source" | "destination";
 type TransferInputProps = {
+  valueState: [string, React.Dispatch<React.SetStateAction<string>>];
   sourceOrDestination: Direction;
   chainId: number | undefined;
 };
 
 export default function TransferInput({
+  valueState,
   chainId,
   sourceOrDestination,
 }: TransferInputProps) {
-  const { chains, switchChain } = useSwitchChain();
+  const { chains } = useSwitchChain();
+  const { balance, isLoading } = useAccountUSDCBalance(chainId);
+
   const searchParams = useSearchParams();
   const currentSelectValue = chainId?.toString() || "";
   const router = useRouter();
 
   function handleChainChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const params = new URLSearchParams(searchParams);
-    const newValue = USDC_ADDRESSES[Number(e.target.value)].name;
+    const newChainId = Number(e.target.value);
+    const newValue = USDC_ADDRESSES[newChainId].name;
 
     if (!newValue) return;
 
@@ -64,8 +71,17 @@ export default function TransferInput({
         </select>
       </div>
       <div className="flex bg-white space-x-1.5 p-1">
-        <input className="bg-white" type="text" />
-        <p className="text-sm">Balance: 10 USDC</p>
+        <input
+          className="bg-white"
+          type="number"
+          step="any"
+          disabled={sourceOrDestination === "destination"}
+        />
+        <p className="text-sm">{`Balance: ${
+          isLoading
+            ? "Balance pending..."
+            : formatUnits(balance ?? BigInt(0), 6)
+        }`}</p>
       </div>
     </div>
   );
