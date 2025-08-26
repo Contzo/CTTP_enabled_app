@@ -19,7 +19,6 @@ export default function Transfer() {
   const destinationChainId = destinationChainObj
     ? destinationChainObj.id
     : undefined;
-
   return (
     <form className="bg-gray-50 p-4  rounded-md mt-4 flex flex-col space-y-3">
       <TransferInput
@@ -35,7 +34,7 @@ export default function Transfer() {
       />
       <SubmitButton
         amountToBridge={sourceBalanceToBurn}
-        destinationChainId={Number(destinationChain)}
+        destinationChainId={Number(destinationChainId)}
       />
     </form>
   );
