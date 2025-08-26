@@ -18,6 +18,7 @@ export default function TransferInput({
   chainId,
   sourceOrDestination,
 }: TransferInputProps) {
+  const [value, setValue] = valueState;
   const { chains } = useSwitchChain();
   const { balance, isLoading } = useAccountUSDCBalance(chainId);
 
@@ -76,6 +77,8 @@ export default function TransferInput({
           type="number"
           step="any"
           disabled={sourceOrDestination === "destination"}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
         />
         <p className="text-sm">{`Balance: ${
           isLoading

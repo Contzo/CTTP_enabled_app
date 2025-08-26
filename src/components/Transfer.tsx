@@ -3,6 +3,7 @@ import { useState } from "react";
 import TransferInput from "./TransferInput";
 import { useSearchParams } from "next/navigation";
 import { useSwitchChain } from "wagmi";
+import SubmitButton from "./SubmitButton";
 
 export default function Transfer() {
   const [sourceBalanceToBurn, setSourceBalanceToBurn] = useState<string>("");
@@ -20,7 +21,7 @@ export default function Transfer() {
     : undefined;
 
   return (
-    <form className="bg-gray-50 p-2  rounded-md mt-4 flex flex-col space-y-3">
+    <form className="bg-gray-50 p-4  rounded-md mt-4 flex flex-col space-y-3">
       <TransferInput
         valueState={[sourceBalanceToBurn, setSourceBalanceToBurn]}
         sourceOrDestination="source"
@@ -31,6 +32,10 @@ export default function Transfer() {
         valueState={[sourceBalanceToBurn, setSourceBalanceToBurn]}
         sourceOrDestination="destination"
         chainId={destinationChainId}
+      />
+      <SubmitButton
+        amountToBridge={sourceBalanceToBurn}
+        destinationChainId={Number(destinationChain)}
       />
     </form>
   );
