@@ -13,9 +13,9 @@ interface ProvidersProps {
 const queryClient = new QueryClient();
 
 export default function Providers({ children }: ProvidersProps) {
-  const isMounted = useIsMounted();
+  // const isMounted = useIsMounted();
 
-  if (!isMounted) return <div>Loading web3 ...</div>;
+  // if (!isMounted) return <div>Loading web3 ...</div>;
 
   return (
     <WagmiProvider config={getConfig()}>

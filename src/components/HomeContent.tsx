@@ -6,10 +6,5 @@ import { useAccount } from "wagmi";
 export default function HomeContent() {
   // ── State variables & hooks──────────────────────────────────────────────
   const { address } = useAccount();
-  return (
-    <>
-      <Header />
-      {address && <Transfer />}
-    </>
-  );
+  return <>{address && <Transfer />}</>;
 }

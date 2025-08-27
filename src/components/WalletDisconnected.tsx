@@ -10,7 +10,7 @@ export default function WalletDisconnected() {
   if (!connector) return <p>No other connectors available</p>;
   // ── TSX ──────────────────────────────────────────────
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center space-x-4 p-4">
       <p className="whitespace-nowrap">Connect a wallet!</p>
       <button
         onClick={() => connect({ connector })}
