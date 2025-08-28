@@ -1,10 +1,9 @@
 "use client";
-import Header from "@/components/Header";
-import Transfer from "./Transfer";
 import { useAccount } from "wagmi";
+import Transfer from "./Transfer";
 
 export default function HomeContent() {
   // ── State variables & hooks──────────────────────────────────────────────
   const { address } = useAccount();
-  return <>{address && <Transfer />}</>;
+  return <div>{address && <Transfer />}</div>;
 }

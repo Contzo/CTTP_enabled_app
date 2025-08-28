@@ -1,44 +1,36 @@
 "use client";
-import {
-  ERC20_ABI,
-  TOKEN_MESSENGER_ABI,
-  USDC_ADDRESSES,
-} from "@/constants/tokens";
+import { USDC_ADDRESSES } from "@/constants/tokens";
+import { ERC20Contract } from "@/services/ERC20Services";
+import { TokenMessenger } from "@/services/TokenMessangerServices";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { parseUnits } from "viem";
-import { useAccount, usePublicClient, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useSwitchChain,
+  useWriteContract,
+} from "wagmi";
 
 interface SubmitButtonProps {
   amountToBridge: string;
   destinationChainId: number;
+  sourceChainId: number;
 }
-// const approveTransferConfig = {
-//   abi: ERC20_ABI,
-//   address: usdcTokenAddress,
-//   functionName: "approve",
-//   args: [tokenMessengerAddress, parseUnits(amountToBridge, 6)],
-// } as const;
-// const burnTransactionConfig = {
-//   abi: TOKEN_MESSENGER_ABI,
-//   address: tokenMessengerAddress,
-//   functionName: "depositForBurn",
-//   args: [
-//     parseUnits(amountToBridge, 6),
-//     destinationDomain,
-//     address,
-//     usdcTokenAddress,
-//   ],
-// };
+
 export default function SubmitButton({
   amountToBridge,
   destinationChainId,
+  sourceChainId,
 }: SubmitButtonProps) {
   // ── State and hooks ──────────────────────────────────────────────
   const [step, setStep] = useState<"idle" | "approving" | "burning">("idle"); // state of the transaction
   const { address, chainId } = useAccount();
+  const searchParams = useSearchParams();
+  const destinationNetwork = searchParams.get("destination") ?? undefined;
   const [isApproving, setIsApproving] = useState<boolean>(false);
   const [isBurning, setIsBurning] = useState<boolean>(false);
 
+  console.log(chainId);
   const tokenMessengerAddress = chainId
     ? USDC_ADDRESSES[chainId].tokenMessengerAddress
     : undefined;
@@ -47,6 +39,9 @@ export default function SubmitButton({
     : undefined;
   const destinationDomain = USDC_ADDRESSES[destinationChainId].domain;
   const { writeContractAsync } = useWriteContract();
+  const { switchChainAsync } = useSwitchChain();
+  const erc20USDC = new ERC20Contract(writeContractAsync);
+  const tokenMessenger = new TokenMessenger(writeContractAsync);
   const publicClient = usePublicClient();
 
   async function handleSubmit() {
@@ -56,62 +51,61 @@ export default function SubmitButton({
         throw Error("Chain not supported for transfer");
       if (step !== "idle") throw Error("Previous transaction not done");
       if (!amountToBridge) return;
+
+      if (!switchChainAsync) return;
+      // Switching to MetaMask to source chain
+      console.log("chianId: " + chainId);
+      if (chainId !== sourceChainId) {
+        console.log("Switching MetaMask network");
+        await switchChainAsync({ chainId: sourceChainId });
+      }
       // Approving
       setStep("approving");
-      const approveTXHash = await writeContractAsync({
-        abi: ERC20_ABI,
-        address: usdcTokenAddress,
-        functionName: "approve",
-        args: [tokenMessengerAddress, parseUnits(amountToBridge, 6)],
-      });
+      setIsApproving(true);
+      const approveTXHash = await erc20USDC.approveTokens(
+        usdcTokenAddress,
+        tokenMessengerAddress,
+        amountToBridge
+      );
       console.log(
         "Waiting for confirmation of approve TX hash:" + approveTXHash
       );
       const approveReceipt = await publicClient?.waitForTransactionReceipt({
-        hash: approveTXHash,
+        hash: approveTXHash as `0x${string}`,
       });
       console.log(
         `Approved transaction with hash: ${approveTXHash} confirmed in block: ${approveReceipt?.blockNumber}`
       );
+      setIsApproving(false);
       // Burning
       setStep("burning");
-      console.log("Address: " + address);
-      // Convert address to bytes32 for depositForBurn
-      const mintRecipient = `0x000000000000000000000000${address.slice(
-        2
-      )}` as `0x${string}`;
-
-      console.log("destination domain: " + destinationDomain);
-      console.log("Mint recipient: " + mintRecipient);
-      console.log("Amount to burn" + parseUnits(amountToBridge, 6));
-      console.log(
-        "amount to burn type: " + typeof parseUnits(amountToBridge, 6)
+      setIsBurning(true);
+      const burnTxHash = await tokenMessenger.depositForBurn(
+        amountToBridge,
+        destinationDomain,
+        address,
+        usdcTokenAddress,
+        tokenMessengerAddress
       );
-      const burnTxHash = await writeContractAsync({
-        abi: TOKEN_MESSENGER_ABI,
-        address: tokenMessengerAddress,
-        functionName: "depositForBurn",
-        args: [
-          parseUnits(amountToBridge, 6),
-          destinationDomain,
-          mintRecipient, // just the 0x-padded string
-          usdcTokenAddress,
-        ],
-      });
-
       console.log("Waiting for confirmation of burn TX hash:" + burnTxHash);
       const burnReceipt = await publicClient?.waitForTransactionReceipt({
-        hash: burnTxHash,
+        hash: burnTxHash as `0x${string}`,
       });
       console.log(
         `Approved transaction with hash: ${burnTxHash} confirmed in block: ${burnReceipt?.blockNumber}`
       );
       setStep("idle");
+      setIsBurning(false);
     } catch (error) {
       console.error(error);
     }
   }
 
+  function getButtonText(): string {
+    if (isApproving) return "Approving amount to burn";
+    if (isBurning) return "Burning tokens on source chain";
+    return `Move funds to ${destinationNetwork ?? ""}`;
+  }
   if (!tokenMessengerAddress || !usdcTokenAddress)
     return <p>Chain not supported for transfer</p>;
 
@@ -120,8 +114,9 @@ export default function SubmitButton({
       className="bg-gray-200 shadow-sm rounded-md hover:bg-gray-400 p-2"
       type="button"
       onClick={handleSubmit}
+      disabled={isBurning || isApproving}
     >
-      Move funds to Sepolia
+      {getButtonText()}
     </button>
   );
 }

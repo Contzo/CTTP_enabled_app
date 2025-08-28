@@ -7,17 +7,5 @@ export default async function Home({
 }: {
   searchParams: Record<string, string>;
 }) {
-  const params = await searchParams;
-  if (!params.source || !params.destination) {
-    redirect(
-      `/?source=${params.source ?? "Sepolia"}&destination=${
-        params.destination ?? "Arbitrum+Sepolia"
-      }`
-    );
-  }
-  return (
-    <Main>
-      <HomeContent />
-    </Main>
-  );
+  redirect("/bridge");
 }

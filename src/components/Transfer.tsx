@@ -8,6 +8,7 @@ import SubmitButton from "./SubmitButton";
 export default function Transfer() {
   const [sourceBalanceToBurn, setSourceBalanceToBurn] = useState<string>("");
   const { chains } = useSwitchChain();
+  console.log("Chains: ", chains);
   const searchParams = useSearchParams();
   const sourceChain = searchParams.get("source");
   const sourceChainObj = chains.find((chain) => chain.name === sourceChain);
@@ -19,6 +20,8 @@ export default function Transfer() {
   const destinationChainId = destinationChainObj
     ? destinationChainObj.id
     : undefined;
+
+  console.log("Destination chain Id ", destinationChainId);
   return (
     <form className="bg-gray-50 p-4  rounded-md mt-4 flex flex-col space-y-3">
       <TransferInput
@@ -34,7 +37,8 @@ export default function Transfer() {
       />
       <SubmitButton
         amountToBridge={sourceBalanceToBurn}
-        destinationChainId={Number(destinationChainId)}
+        destinationChainId={destinationChainId ?? 0}
+        sourceChainId={sourceChainId ?? 0}
       />
     </form>
   );
