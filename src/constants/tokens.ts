@@ -14,14 +14,14 @@ export const USDC_ADDRESSES: Record<number, TokenData> = {
     name: "Sepolia",
     usdcTokenAddress: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
     domain: 0,
-    tokenMessengerAddress: "0x9f3B8679c73C2Fef8b59B4f3444d4e156fb70AA5",
+    tokenMessengerAddress: "0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA",
     messageTransmitterV2Address: "0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275",
   },
   [arbitrumSepolia.id]: {
     name: "Arbitrum Sepolia",
     usdcTokenAddress: "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
     domain: 3,
-    tokenMessengerAddress: "0x9f3B8679c73C2Fef8b59B4f3444d4e156fb70AA5",
+    tokenMessengerAddress: "0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA",
     messageTransmitterV2Address: "0xaCF1ceeF35caAc005e15888dDb8A3515C41B4872",
   },
   // add other chains here
