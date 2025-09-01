@@ -1,38 +1,34 @@
-import type { WriteContractMutateAsync } from "wagmi/query";
-import type { Config } from "wagmi";
 import { ERC20_ABI } from "@/constants/tokens";
+import { Contract, Signer } from "ethers";
 import { parseUnits } from "viem";
 
 export class ERC20Contract {
-  constructor(
-    private writeContractAsync: WriteContractMutateAsync<Config, unknown>
-  ) {}
+  private signer: Signer;
+
+  constructor(signer: Signer) {
+    this.signer = signer;
+  }
 
   async approveTokens(
     tokenAddress: `0x${string}`,
     spenderAddress: `0x${string}`,
     amount: string
-  ): Promise<string | Error> {
+  ): Promise<string> {
     try {
-      console.log(
-        "// ── Approving ──────────────────────────────────────────────"
-      );
-      console.log("Spender: " + tokenAddress);
-      console.log("Amount to spend: " + amount);
-      const approvalHash = await this.writeContractAsync({
-        abi: ERC20_ABI,
-        address: tokenAddress,
-        functionName: "approve",
-        args: [spenderAddress, parseUnits(amount, 6)],
-      });
+      console.log("// ── Approving ────────────────────────────────");
+      console.log("Token: " + tokenAddress);
+      console.log("Spender: " + spenderAddress);
+      console.log("Amount: " + amount);
 
-      return approvalHash;
+      const contract = new Contract(tokenAddress, ERC20_ABI, this.signer);
+      const tx = await contract.approve(spenderAddress, parseUnits(amount, 6));
+      const receipt = await tx.wait();
+
+      console.log("✅ Approval confirmed in block:", receipt.blockNumber);
+      return tx.hash;
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      } else {
-        throw new Error(String(error));
-      }
+      if (error instanceof Error) throw new Error(error.message);
+      throw new Error(String(error));
     }
   }
 }
