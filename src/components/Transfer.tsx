@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
-import TransferInput from "./TransferInput";
+import { useMyMessageHashes } from "@/hooks/useMyMessageHashes";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useSwitchChain } from "wagmi";
 import SubmitButton from "./SubmitButton";
+import TransferInput from "./TransferInput";
 
 export default function Transfer() {
   const [sourceBalanceToBurn, setSourceBalanceToBurn] = useState<string>("");
@@ -21,7 +22,6 @@ export default function Transfer() {
     ? destinationChainObj.id
     : undefined;
 
-  console.log("Destination chain Id ", destinationChainId);
   return (
     <form className="bg-gray-50 p-4  rounded-md mt-4 flex flex-col space-y-3">
       <TransferInput

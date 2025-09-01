@@ -7,14 +7,10 @@ export const getConfig = () => {
   return createConfig({
     chains: [sepolia, arbitrumSepolia],
     transports: {
-      [sepolia.id]: fallback([
-        http(process.env.SEPOLIA_RPC_URL), // Your custom RPC
-        http(), // Fallback to default public RPC
-      ]),
-      [arbitrumSepolia.id]: fallback([
-        http(process.env.ARBITRUM_SEPOLIA_RPC_URL), // Your custom RPC
-        http(), // Fallback to default public RPC
-      ]),
+      [sepolia.id]: http(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL), // Your custom RPC
+      [arbitrumSepolia.id]: http(
+        process.env.NEXT_PUBLIC_ARBITRUM_SEPOLIA_RPC_URL
+      ), // Your custom RPC
     },
     connectors: [injected()],
   });

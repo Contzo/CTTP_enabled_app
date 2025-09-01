@@ -63,7 +63,14 @@ export const TOKEN_MESSENGER_ABI = [
   {
     type: "event",
     name: "MessageSent",
-    inputs: [{ name: "message", type: "bytes", indexed: false }],
+    inputs: [
+      {
+        indexed: true,
+        name: "messageHash",
+        type: "bytes32",
+      },
+      { name: "message", type: "bytes", indexed: false },
+    ],
     anonymous: false,
   },
 ] as const satisfies Abi;

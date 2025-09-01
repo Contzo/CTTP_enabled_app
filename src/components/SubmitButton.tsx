@@ -3,9 +3,11 @@ import { USDC_ADDRESSES } from "@/constants/tokens";
 import { ERC20Contract } from "@/services/ERC20Services";
 import { TokenMessenger } from "@/services/TokenMessangerServices";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 import { BrowserProvider } from "ethers";
+import { useMyMessageHashes } from "@/hooks/useMyMessageHashes";
+import { useDebugLogs } from "@/hooks/useDebugLogs";
 
 interface SubmitButtonProps {
   amountToBridge: string;
@@ -23,6 +25,14 @@ export default function SubmitButton({
   const searchParams = useSearchParams();
   const destinationNetwork = searchParams.get("destination") ?? undefined;
   const { switchChainAsync } = useSwitchChain();
+  // const { hashes, error } = useMyMessageHashes();
+
+  // useEffect(() => {
+  //   if (error) console.error(error);
+  //   if (step === "idle") console.log("Hashes for the account: ", hashes);
+  // }, [step]);
+
+  useDebugLogs();
 
   async function handleSubmit() {
     try {
